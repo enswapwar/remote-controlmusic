@@ -9,34 +9,49 @@ const io = new Server(server);
 app.use(express.static("public"));
 app.use(express.static(__dirname));
 
-let children = {};
+let children = {}; 
+// { socketId: { socket, name } }
+
+function broadcastList() {
+  const list = Object.entries(children).map(([id, data]) => ({
+    id,
+    name: data.name
+  }));
+  io.emit("children-list", list);
+}
 
 io.on("connection", (socket) => {
 
-  // 親が接続したら今の一覧を必ず送る
-  socket.emit("children-list", Object.keys(children));
+  socket.emit("children-list",
+    Object.entries(children).map(([id, data]) => ({
+      id,
+      name: data.name
+    }))
+  );
 
-  // 子が確定したときのみ登録
-  socket.on("register-child", () => {
-    children[socket.id] = socket;
-    io.emit("children-list", Object.keys(children));
+  socket.on("register-child", (name) => {
+    children[socket.id] = {
+      socket,
+      name: name || "NoName"
+    };
+    broadcastList();
   });
 
   socket.on("disconnect", () => {
     delete children[socket.id];
-    io.emit("children-list", Object.keys(children));
+    broadcastList();
   });
 
   socket.on("play", (id) => {
-    children[id]?.emit("play");
+    children[id]?.socket.emit("play");
   });
 
   socket.on("stop", (id) => {
-    children[id]?.emit("stop");
+    children[id]?.socket.emit("stop");
   });
 
   socket.on("volume", ({ id, value }) => {
-    children[id]?.emit("volume", value);
+    children[id]?.socket.emit("volume", value);
   });
 
 });
