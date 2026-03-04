@@ -4,6 +4,7 @@ const fileInput = document.getElementById("fileInput");
 const confirmBtn = document.getElementById("confirm");
 const activateBtn = document.getElementById("activate");
 const status = document.getElementById("status");
+const nameInput = document.getElementById("nameInput");
 
 let registered = false;
 
@@ -16,7 +17,9 @@ fileInput.addEventListener("change", () => {
 
 confirmBtn.addEventListener("click", () => {
   if (!audio.src) return;
-  socket.emit("register-child");
+
+  const name = nameInput.value.trim();
+  socket.emit("register-child", name);
   registered = true;
   status.textContent = "登録済み";
 });
