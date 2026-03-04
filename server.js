@@ -13,6 +13,10 @@ let children = {};
 
 io.on("connection", (socket) => {
 
+  // 親が接続したら今の一覧を必ず送る
+  socket.emit("children-list", Object.keys(children));
+
+  // 子が確定したときのみ登録
   socket.on("register-child", () => {
     children[socket.id] = socket;
     io.emit("children-list", Object.keys(children));
@@ -38,5 +42,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(3000, () => {
-  console.log("Server running");
+  console.log("サーバーが起動したよ！");
 });
