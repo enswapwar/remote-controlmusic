@@ -4,10 +4,10 @@ const select = document.getElementById("childSelect");
 socket.on("children-list", (list) => {
   select.innerHTML = "";
 
-  list.forEach(id => {
+  list.forEach(child => {
     const option = document.createElement("option");
-    option.value = id;
-    option.textContent = id;
+    option.value = child.id;        // 内部ID
+    option.textContent = child.name; // 表示は名前
     select.appendChild(option);
   });
 });
